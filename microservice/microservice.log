@@ -1,0 +1,4 @@
+2024-09-29 11:56:11,348 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-09-29 11:56:11,348 - INFO - Added job "start_scheduler.<locals>.<lambda>" to job store "default"
+2024-09-29 11:56:11,348 - INFO - Scheduler started
+2024-09-29 11:56:11,349 - INFO - Scheduler started and pool checks are running every 1 minute.

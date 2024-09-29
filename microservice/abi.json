@@ -1,0 +1,199 @@
+[
+    {
+    "anonymous": false,
+    "inputs": [
+        {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "poolId",
+        "type": "uint256"
+        },
+        {
+        "indexed": false,
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
+        },
+        {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "targetPrice",
+        "type": "uint256"
+        },
+        {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "stopLoss",
+        "type": "uint256"
+        },
+        {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "endTime",
+        "type": "uint256"
+        }
+    ],
+    "name": "PoolCreated",
+    "type": "event"
+    },
+    {
+    "anonymous": false,
+    "inputs": [
+        {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "poolId",
+        "type": "uint256"
+        },
+        {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "finalPrice",
+        "type": "uint256"
+        },
+        {
+        "indexed": false,
+        "internalType": "string",
+        "name": "outcome",
+        "type": "string"
+        }
+    ],
+    "name": "PoolFinalized",
+    "type": "event"
+    },
+    {
+    "inputs": [
+        {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+        }
+    ],
+    "name": "activePools",
+    "outputs": [
+        {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+        }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+    },
+    {
+    "inputs": [
+        {
+        "internalType": "uint256",
+        "name": "_targetPrice",
+        "type": "uint256"
+        },
+        {
+        "internalType": "uint256",
+        "name": "_stopLoss",
+        "type": "uint256"
+        },
+        {
+        "internalType": "uint256",
+        "name": "_duration",
+        "type": "uint256"
+        }
+    ],
+    "name": "createPool",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+    },
+    {
+    "inputs": [],
+    "name": "getActivePools",
+    "outputs": [
+        {
+        "internalType": "uint256[]",
+        "name": "",
+        "type": "uint256[]"
+        }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+    },
+    {
+    "inputs": [],
+    "name": "poolCounter",
+    "outputs": [
+        {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+        }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+    },
+    {
+    "inputs": [
+        {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+        }
+    ],
+    "name": "pools",
+    "outputs": [
+        {
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
+        },
+        {
+        "internalType": "uint256",
+        "name": "targetPrice",
+        "type": "uint256"
+        },
+        {
+        "internalType": "uint256",
+        "name": "stopLoss",
+        "type": "uint256"
+        },
+        {
+        "internalType": "uint256",
+        "name": "endTime",
+        "type": "uint256"
+        },
+        {
+        "internalType": "bool",
+        "name": "isFinalized",
+        "type": "bool"
+        },
+        {
+        "internalType": "uint256",
+        "name": "finalPrice",
+        "type": "uint256"
+        },
+        {
+        "internalType": "string",
+        "name": "outcome",
+        "type": "string"
+        }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+    },
+    {
+    "inputs": [
+        {
+        "internalType": "uint256",
+        "name": "poolId",
+        "type": "uint256"
+        },
+        {
+        "internalType": "uint256",
+        "name": "currentPrice",
+        "type": "uint256"
+        }
+    ],
+    "name": "resolvePool",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+    }
+]
