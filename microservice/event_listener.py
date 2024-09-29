@@ -2,10 +2,20 @@ from contract_service import contract
 import asyncio
 import logging
 from config import *
+import httpx
 
 logger = logging.getLogger(__name__)
 
 BLOCK_TRACK_FILE = "last_processed_block.json"
+
+async def send_discord_notification(message: str):
+    """Send a message to the Discord channel via the webhook."""
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(DISCORD_WEBHOOK_URL, json={"content": message})
+            response.raise_for_status()
+    except Exception as e:
+        logger.error(f"Failed to send Discord notification: {str(e)}")
 
 def get_last_processed_block():
     """Retrieve the last processed block number from the file."""
@@ -21,7 +31,7 @@ def store_last_processed_block(block_number):
     with open(BLOCK_TRACK_FILE, 'w') as f:
         json.dump({"last_processed_block": block_number}, f)
 
-def handle_pool_created_event(event):
+async def handle_pool_created_event(event):
     pool_id = event['args']['poolId']
     pool = contract.functions.pools(pool_id).call()
     logger.info(f"Event {pool[4]})")
@@ -36,23 +46,35 @@ def handle_pool_created_event(event):
     logger.info(f"Event listener: Pool Created: Pool ID: {pool_id}, Creator: {creator}, "
                 f"Target Price: {target_price}, Stop Loss: {stop_loss}, End Time: {end_time}, ")
 
-    # ToDo: Notify users on Discord or update a database
+    message = (f"New Pool Created!\n"
+               f"**Pool ID:** {pool_id}\n"
+               f"**Creator:** {creator}\n"
+               f"**Target Price:** {target_price}\n"
+               f"**Stop Loss:** {stop_loss}\n"
+               f"**End Time:** {end_time}")
 
-def handle_pool_finalized_event(event):
+    await send_discord_notification(message)
+
+async def handle_pool_finalized_event(event):
     pool_id = event['args']['poolId']
     final_price = event['args']['finalPrice']
     outcome = event['args']['outcome']
 
     logger.info(f"Event listener: Pool Finalized: Pool ID: {pool_id}, Final Price: {final_price}, Outcome: {outcome}")
 
-    # ToDo: Notify users on Discord or update a database
+    message = (f"Pool Finalized!\n"
+               f"**Pool ID:** {pool_id}\n"
+               f"**Final Price:** {final_price}\n"
+               f"**Outcome:** {outcome}")
 
-def handle_event(event):
+    await send_discord_notification(message)
+
+async def handle_event(event):
     event_name = event.event
     if event_name == 'PoolCreated':
-        handle_pool_created_event(event)
+        await handle_pool_created_event(event)
     elif event_name == 'PoolFinalized':
-        handle_pool_finalized_event(event)
+        await handle_pool_finalized_event(event)
     else:
         logger.warning(f"Event listener: Unhandled event type: {event_name}")
 
@@ -70,10 +92,10 @@ async def event_listener():
             finalized_events = pool_finalized_filter.get_new_entries()
 
             for event in created_events:
-                handle_event(event)
+                await handle_event(event)
 
             for event in finalized_events:
-                handle_event(event)
+                await handle_event(event)
 
             await asyncio.sleep(2)
 
