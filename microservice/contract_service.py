@@ -75,11 +75,11 @@ def get_pool_details(pool_id):
 
         return {
             "creator": pool[0],
-            "target_price": pool[1] / 10**18,
-            "stop_loss": pool[2] / 10**18,
+            "target_price": pool[1],
+            "stop_loss": pool[2],
             "end_time": pool[3],
             "is_finalized": pool[4],
-            "final_price": pool[5] / 10**18,
+            "final_price": pool[5],
             "outcome": pool[6]
         }
 

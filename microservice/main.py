@@ -37,9 +37,9 @@ class FinalizeRequest(BaseModel):
 @app.post("/create_pool")
 async def create_pool_route(pool_data: PoolData):
     result = create_pool(
-        pool_data.target_price,
-        pool_data.stop_loss,
-        pool_data.duration
+        pool_data.target_price * 10**18,
+        pool_data.stop_loss * 10**18,
+        pool_data.duration * 10**18
     )
 
     if result["status"] == "success":
