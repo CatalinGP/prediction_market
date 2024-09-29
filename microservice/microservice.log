@@ -1,4 +1,14 @@
-2024-09-29 11:56:11,348 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
-2024-09-29 11:56:11,348 - INFO - Added job "start_scheduler.<locals>.<lambda>" to job store "default"
-2024-09-29 11:56:11,348 - INFO - Scheduler started
-2024-09-29 11:56:11,349 - INFO - Scheduler started and pool checks are running every 1 minute.
+2024-09-29 13:41:25,839 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-09-29 13:41:25,839 - INFO - Added job "start_scheduler.<locals>.<lambda>" to job store "default"
+2024-09-29 13:41:25,839 - INFO - Scheduler started
+2024-09-29 13:41:25,840 - INFO - Scheduler started and pool checks are running every 1 minute.
+2024-09-29 13:41:25,862 - INFO - Event listener: Pool Finalized: Pool ID: 6, Final Price: 65483000000000003407872, Outcome: Target price reached
+2024-09-29 13:42:24,106 - INFO - Event listener: New Pool Created: Pool ID: 7, Creator: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266, Target Price: 75000, Stop Loss: 6000, End Time: 1727606543
+2024-09-29 13:42:25,840 - INFO - Running job "start_scheduler.<locals>.<lambda> (trigger: interval[0:01:00], next run at: 2024-09-29 13:42:25 EEST)" (scheduled at 2024-09-29 13:42:25.838904+03:00)
+2024-09-29 13:42:26,205 - INFO - HTTP Request: GET https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd "HTTP/1.1 200 OK"
+2024-09-29 13:42:26,206 - INFO - Fetched current price: $65511
+2024-09-29 13:42:26,235 - INFO - Retrieved active pools: [{'pool_id': 7, 'tp': 75000.0, 'sl': 6000.0, 'end_time': 1727606543}]
+2024-09-29 13:42:26,357 - INFO - Pool 7 finalized. Transaction hash: ba3fbd6161ed8585504241cc37e5b08c412b32e386826aee0cb5aeb967eefc31
+2024-09-29 13:42:26,357 - INFO - Pool 7 finalized: End time reached. Txn Hash: ba3fbd6161ed8585504241cc37e5b08c412b32e386826aee0cb5aeb967eefc31
+2024-09-29 13:42:26,357 - INFO - Job "start_scheduler.<locals>.<lambda> (trigger: interval[0:01:00], next run at: 2024-09-29 13:43:25 EEST)" executed successfully
+2024-09-29 13:42:28,124 - INFO - Event listener: Pool Finalized: Pool ID: 7, Final Price: 65510999999999996067840, Outcome: Target price reached

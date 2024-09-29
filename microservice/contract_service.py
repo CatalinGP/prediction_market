@@ -1,5 +1,5 @@
 from web3 import Web3
-from config import WEB3_PROVIDER, CONTRACT_ADDRESS, CONTRACT_ABI, PRIVATE_KEY
+from config import CONTRACT_ADDRESS, PRIVATE_KEY, WEB3_SOCK_PROVIDER
 import logging
 import json
 from dotenv import load_dotenv
@@ -12,18 +12,16 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
-
 load_dotenv()
+web3_provider = Web3(Web3.LegacyWebSocketProvider(WEB3_SOCK_PROVIDER))
 
-web3 = Web3(Web3.HTTPProvider(WEB3_PROVIDER))
-
-if not web3.is_connected():
+if not web3_provider.is_connected():
     raise ConnectionError("Failed to connect to the Ethereum network.")
 
 with open("abi.json") as f:
     contract_abi = json.load(f)
 
-contract = web3.eth.contract(address=CONTRACT_ADDRESS, abi=contract_abi)
+contract = web3_provider.eth.contract(address=CONTRACT_ADDRESS, abi=contract_abi)
 
 
 def create_pool(target_price: int, stop_loss: int, duration: int) -> dict:
@@ -36,7 +34,7 @@ def create_pool(target_price: int, stop_loss: int, duration: int) -> dict:
     :return: Dictionary with transaction details
     """
     try:
-        account = web3.eth.account.from_key(PRIVATE_KEY)
+        account = web3_provider.eth.account.from_key(PRIVATE_KEY)
 
         tx = contract.functions.createPool(
             target_price,
@@ -45,13 +43,13 @@ def create_pool(target_price: int, stop_loss: int, duration: int) -> dict:
         ).build_transaction({
             "chainId": 84532,
             "gas": 3000000,
-            "gasPrice": web3.to_wei("20", "gwei"),
-            "nonce": web3.eth.get_transaction_count(account.address),
+            "gasPrice": web3_provider.to_wei("20", "gwei"),
+            "nonce": web3_provider.eth.get_transaction_count(account.address),
         })
 
-        signed_tx = web3.eth.account.sign_transaction(tx, private_key=PRIVATE_KEY)
-        tx_hash = web3.eth.send_raw_transaction(signed_tx.raw_transaction)
-        tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
+        signed_tx = web3_provider.eth.account.sign_transaction(tx, private_key=PRIVATE_KEY)
+        tx_hash = web3_provider.eth.send_raw_transaction(signed_tx.raw_transaction)
+        tx_receipt = web3_provider.eth.wait_for_transaction_receipt(tx_hash)
 
         if tx_receipt.status == 1:
             return {
@@ -90,16 +88,16 @@ def get_pool_details(pool_id):
         return None
 
 def get_dynamic_gas_price():
-    base_fee = web3.eth.gas_price
-    priority_fee = web3.to_wei('2', 'gwei')
+    base_fee = web3_provider.eth.gas_price
+    priority_fee = web3_provider.to_wei('2', 'gwei')
     max_fee_per_gas = base_fee + priority_fee
     return max_fee_per_gas, priority_fee
 
 def finalize_pool(pool_id, current_price):
     """Finalizes a pool on the smart contract."""
     try:
-        account = web3.eth.account.from_key(PRIVATE_KEY)
-        balance = web3.eth.get_balance(account.address)
+        account = web3_provider.eth.account.from_key(PRIVATE_KEY)
+        balance = web3_provider.eth.get_balance(account.address)
         max_fee_per_gas, max_priority_fee_per_gas = get_dynamic_gas_price()
 
         txn = contract.functions.resolvePool(pool_id, current_price).build_transaction({
@@ -107,10 +105,10 @@ def finalize_pool(pool_id, current_price):
             'gas': 2000000,
             'maxFeePerGas': max_fee_per_gas,
             'maxPriorityFeePerGas': max_priority_fee_per_gas,
-            'nonce': web3.eth.get_transaction_count(account.address, 'pending'),
+            'nonce': web3_provider.eth.get_transaction_count(account.address, 'pending'),
         })
 
-        gas_estimate = web3.eth.estimate_gas({
+        gas_estimate = web3_provider.eth.estimate_gas({
             'from': account.address,
             'to': contract.address,
             'data': txn['data'],
@@ -118,11 +116,11 @@ def finalize_pool(pool_id, current_price):
         total_gas_fee = gas_estimate * max_fee_per_gas
 
         if balance < total_gas_fee:
-            logger.error(f"Insufficient funds for gas. Required: {web3.from_wei(total_gas_fee, 'ether')} ETH, Available: {web3.from_wei(balance, 'ether')} ETH")
+            logger.error(f"Insufficient funds for gas. Required: {web3_provider.from_wei(total_gas_fee, 'ether')} ETH, Available: {web3_provider.from_wei(balance, 'ether')} ETH")
             return None
 
-        signed_txn = web3.eth.account.sign_transaction(txn, private_key=PRIVATE_KEY)
-        txn_hash = web3.eth.send_raw_transaction(signed_txn.raw_transaction)
+        signed_txn = web3_provider.eth.account.sign_transaction(txn, private_key=PRIVATE_KEY)
+        txn_hash = web3_provider.eth.send_raw_transaction(signed_txn.raw_transaction)
         logger.info(f"Pool {pool_id} finalized. Transaction hash: {txn_hash.hex()}")
         return txn_hash.hex()
 

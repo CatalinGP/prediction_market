@@ -4,8 +4,21 @@ from contract_service import create_pool, get_pool_details, finalize_pool
 from price_monitor import check_pool_conditions
 from pydantic import BaseModel
 import uvicorn
+from event_listener import event_listener
+from contextlib import asynccontextmanager
+import asyncio
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("Starting WebSocket event listener...")
+    loop = asyncio.get_event_loop()
+    listener_task = loop.create_task(event_listener())
+    start_scheduler()
+    yield
+    print("Shutting down WebSocket event listener...")
+    listener_task.cancel()
+
+app = FastAPI(lifespan=lifespan)
 
 class PoolData(BaseModel):
     target_price: int
@@ -15,7 +28,7 @@ class PoolData(BaseModel):
 class PoolRequest(BaseModel):
     target_price: float
     stop_loss: float
-    duration: int  # duration in seconds
+    duration: int
 
 class FinalizeRequest(BaseModel):
     pool_id: int
@@ -75,5 +88,5 @@ async def get_logs():
         raise HTTPException(status_code=500, detail=f"Error reading logs: {str(e)}")
 
 if __name__ == "__main__":
-    start_scheduler()
+    # start_scheduler()
     uvicorn.run(app, host="0.0.0.0", port=8000)
