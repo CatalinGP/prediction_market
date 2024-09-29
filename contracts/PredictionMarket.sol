@@ -1,18 +1,19 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.7.3 <0.9.0;
+pragma solidity ^0.8.27;
 
+// solhint-disable-next-line error-reason
 contract PredictionMarket {
     event PoolCreated(uint256 poolId, address creator, uint256 targetPrice, uint256 stopLoss, uint256 endTime);
     event PoolFinalized(uint256 poolId, uint256 finalPrice, string outcome);
 
     struct Pool {
         address creator;
-        uint256 targetPrice; // Target price to hit for a win
-        uint256 stopLoss;    // Stop loss price to close the pool
-        uint256 endTime;     // Time at which the pool ends
-        bool isFinalized;    // Indicates if the pool is finalized
-        uint256 finalPrice;  // The final price when the pool is closed
-        string outcome;      // Outcome message of the pool
+        uint256 targetPrice;
+        uint256 stopLoss;
+        uint256 endTime;
+        bool isFinalized;
+        uint256 finalPrice;
+        string outcome;
     }
 
     mapping(uint256 => Pool) public pools;
@@ -20,18 +21,19 @@ contract PredictionMarket {
 
     uint256[] public activePools;
 
+    // solhint-disable-next-line gas-custom-errors
     modifier poolExists(uint256 poolId) {
         require(poolId < poolCounter, "Pool does not exist");
         _;
     }
 
-    function createPool(uint256 _targetPrice, uint256 _stopLoss, uint256 _duration) external {
-        uint256 endTime = block.timestamp + _duration;
+    function createPool(uint256 targetPrice, uint256 stopLoss, uint256 duration) external {
+        uint256 endTime = block.timestamp + duration;
 
         pools[poolCounter] = Pool({
             creator: msg.sender,
-            targetPrice: _targetPrice,
-            stopLoss: _stopLoss,
+            targetPrice: targetPrice,
+            stopLoss: stopLoss,
             endTime: endTime,
             isFinalized: false,
             finalPrice: 0,
@@ -39,14 +41,17 @@ contract PredictionMarket {
         });
 
         activePools.push(poolCounter);
-        emit PoolCreated(poolCounter, msg.sender, _targetPrice, _stopLoss, endTime);
-
+        emit PoolCreated(poolCounter, msg.sender, targetPrice, stopLoss, endTime);
         poolCounter++;
     }
 
+    // solhint-disable-next-line gas-custom-errors
     function resolvePool(uint256 poolId, uint256 currentPrice) external poolExists(poolId) {
         Pool storage pool = pools[poolId];
         require(!pool.isFinalized, "Pool already finalized");
+
+        // solhint-disable-next-line gas-custom-errors
+        // slither-disable-next-line timestamp
         require(
             block.timestamp >= pool.endTime || currentPrice >= pool.targetPrice || currentPrice <= pool.stopLoss,
             "Conditions not met for finalization"
@@ -75,7 +80,7 @@ contract PredictionMarket {
         for (uint256 i = 0; i < activePools.length; i++) {
             if (activePools[i] == poolId) {
                 activePools[i] = activePools[activePools.length - 1];
-                activePools.pop();  // Remove the last element
+                activePools.pop();
                 break;
             }
         }

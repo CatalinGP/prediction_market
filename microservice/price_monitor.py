@@ -70,11 +70,6 @@ async def check_pool_conditions(pool_id=None):
             target_price = pool_details['target_price']
             stop_loss = pool_details['stop_loss']
 
-            logger.info(f"Comparing pool {pool['pool_id']} values: \n"
-                        f"Target Price (Wei): {target_price} | Current Price (Wei): {current_price_in_wei}\n"
-                        f"Stop Loss (Wei): {stop_loss} | Current Price (Wei): {current_price_in_wei}\n"
-                        f"End Time: {pool_details['end_time']} | Current Time: {int(time.time())}")
-
             if current_price_in_wei >= target_price:
                 txn_hash = finalize_pool(pool['pool_id'], current_price_in_wei)
                 logger.info(f"Pool {pool['pool_id']} finalized: Target price reached. Txn Hash: {txn_hash}")
@@ -88,7 +83,7 @@ async def check_pool_conditions(pool_id=None):
                 logger.info(f"Pool {pool['pool_id']} finalized: End time reached. Txn Hash: {txn_hash}")
                 return {"message": "Pool finalized due to end time", "transaction_hash": txn_hash}
             else:
-                logger.info(f"Conditions not met yet for pool {pool['pool_id']}. Current price: {Web3.fromWei(current_price_in_wei, 'ether')} Ether")
+                logger.info(f"Conditions not met yet for pool {pool['pool_id']}. Current price: {Web3.from_wei(current_price_in_wei, 'ether')} $")
 
         return {"message": "All active pools checked. No conditions met."}
     except Exception as e:

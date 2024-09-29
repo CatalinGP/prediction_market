@@ -5,15 +5,36 @@ from config import *
 
 logger = logging.getLogger(__name__)
 
+BLOCK_TRACK_FILE = "last_processed_block.json"
+
+def get_last_processed_block():
+    """Retrieve the last processed block number from the file."""
+    try:
+        with open(BLOCK_TRACK_FILE, 'r') as f:
+            data = json.load(f)
+            return data.get("last_processed_block", None)
+    except FileNotFoundError:
+        return None
+
+def store_last_processed_block(block_number):
+    """Store the last processed block number in a file."""
+    with open(BLOCK_TRACK_FILE, 'w') as f:
+        json.dump({"last_processed_block": block_number}, f)
+
 def handle_pool_created_event(event):
     pool_id = event['args']['poolId']
+    pool = contract.functions.pools(pool_id).call()
+    logger.info(f"Event {pool[4]})")
+    if pool[4]:
+        return
+
     creator = event['args']['creator']
     target_price = event['args']['targetPrice']
     stop_loss = event['args']['stopLoss']
     end_time = event['args']['endTime']
 
-    logger.info(f"Event listener: New Pool Created: Pool ID: {pool_id}, Creator: {creator}, "
-                f"Target Price: {target_price}, Stop Loss: {stop_loss}, End Time: {end_time}")
+    logger.info(f"Event listener: Pool Created: Pool ID: {pool_id}, Creator: {creator}, "
+                f"Target Price: {target_price}, Stop Loss: {stop_loss}, End Time: {end_time}, ")
 
     # ToDo: Notify users on Discord or update a database
 
@@ -37,6 +58,10 @@ def handle_event(event):
 
 async def event_listener():
     try:
+        last_processed_block = get_last_processed_block()
+        if last_processed_block is None:
+            last_processed_block = 'latest'
+
         pool_created_filter = contract.events.PoolCreated.create_filter(from_block='latest')
         pool_finalized_filter = contract.events.PoolFinalized.create_filter(from_block='latest')
 

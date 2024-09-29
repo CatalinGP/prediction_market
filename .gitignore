@@ -1,9 +1,10 @@
-node_modules
+/node_modules
 .env
 venv
-microservice/__pycache__
+microservice/__pycache__/*
 microservice/microservice.log
-
+node_modules
+__pycache__
 # Hardhat files
 /cache
 /artifacts
@@ -11,7 +12,3 @@ microservice/microservice.log
 # TypeChain files
 /typechain
 /typechain-types
-
-# solidity-coverage files
-/coverage
-/coverage.json
