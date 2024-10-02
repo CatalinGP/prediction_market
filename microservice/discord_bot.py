@@ -11,21 +11,18 @@ from config import *
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Enable the Message Content Intent
 intents = discord.Intents.default()
 intents.message_content = True
 
-# Setup bot with the intents
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 @bot.event
 async def on_ready():
     logger.info(f'Bot is ready. Logged in as {bot.user}')
     print("Bot is online and ready to accept commands.")
-    # Start tasks when the bot is ready
-    fetch_price.start()  # Starts periodic price fetching
+    fetch_price.start()
     check_pools_periodically.start()
-    asyncio.create_task(event_listener())  # Starts event listener in the background
+    asyncio.create_task(event_listener())
 
 @tasks.loop(minutes=1)
 async def fetch_price():
@@ -77,31 +74,25 @@ async def create_pool_command(ctx):
         return m.author == ctx.author and m.channel == ctx.channel
 
     try:
-        # Ask for the target price
         target_price_message = await bot.wait_for('message', check=check, timeout=60.0)
         target_price_in_usd = float(target_price_message.content)
 
-        # Fetch the current price of ETH in USD from the price monitor
         current_price_in_wei = await get_current_price()
         current_price_in_eth = Web3.from_wei(current_price_in_wei, 'ether')
 
-        # Convert the USD target price to ETH (then to wei for the contract)
         target_price_in_eth = target_price_in_usd / float(current_price_in_eth)
         target_price_in_wei = Web3.to_wei(target_price_in_eth, 'ether')
 
-        # Ask for the stop loss
         await ctx.send("Please provide the stop loss in USD (e.g., 1200):")
         stop_loss_message = await bot.wait_for('message', check=check, timeout=60.0)
         stop_loss_in_usd = float(stop_loss_message.content)
         stop_loss_in_eth = stop_loss_in_usd / float(current_price_in_eth)
         stop_loss_in_wei = Web3.to_wei(stop_loss_in_eth, 'ether')
 
-        # Ask for the duration
         await ctx.send("Please provide the duration of the pool in seconds (e.g., 86400 for 1 day):")
         duration_message = await bot.wait_for('message', check=check, timeout=60.0)
         duration = int(duration_message.content)
 
-        # Call the create_pool function from contract_service.py
         result = create_pool(target_price_in_wei, stop_loss_in_wei, duration)
         if result["status"] == "success":
             await ctx.send(f"{result['message']}")
@@ -117,5 +108,4 @@ async def create_pool_command(ctx):
         logger.error(f"Error creating pool: {str(e)}")
 
 
-# Run the bot using the token from the config
 bot.run(DISCORD_BOT)
