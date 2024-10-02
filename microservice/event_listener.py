@@ -8,14 +8,14 @@ logger = logging.getLogger(__name__)
 
 BLOCK_TRACK_FILE = "last_processed_block.json"
 
-async def send_discord_notification(message: str):
-    """Send a message to the Discord channel via the webhook."""
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.post(DISCORD_WEBHOOK_URL, json={"content": message})
-            response.raise_for_status()
-    except Exception as e:
-        logger.error(f"Failed to send Discord notification: {str(e)}")
+# async def send_discord_notification(message: str):
+#     """Send a message to the Discord channel via the webhook."""
+#     try:
+#         async with httpx.AsyncClient() as client:
+#             response = await client.post(DISCORD_WEBHOOK_URL, json={"content": message})
+#             response.raise_for_status()
+#     except Exception as e:
+#         logger.error(f"Failed to send Discord notification: {str(e)}")
 
 def get_last_processed_block():
     """Retrieve the last processed block number from the file."""
@@ -43,31 +43,40 @@ async def handle_pool_created_event(event):
     stop_loss = event['args']['stopLoss']
     end_time = event['args']['endTime']
 
-    logger.info(f"Event listener: Pool Created: Pool ID: {pool_id}, Creator: {creator}, "
-                f"Target Price: {target_price}, Stop Loss: {stop_loss}, End Time: {end_time}, ")
+    logger.info(f"Event listener: \
+                Pool Created: \
+                Pool ID: {pool_id}, \
+                    Creator: {creator}, "
+                f"Target Price: {target_price}, \
+                    Stop Loss: {stop_loss}, \
+                        End Time: {end_time}, ")
 
-    message = (f"New Pool Created!\n"
-               f"**Pool ID:** {pool_id}\n"
-               f"**Creator:** {creator}\n"
-               f"**Target Price:** {target_price}\n"
-               f"**Stop Loss:** {stop_loss}\n"
-               f"**End Time:** {end_time}")
+    # message = (f"New Pool Created!\n"
+    #            f"**Pool ID:** {pool_id}\n"
+    #            f"**Creator:** {creator}\n"
+    #            f"**Target Price:** {target_price}\n"
+    #            f"**Stop Loss:** {stop_loss}\n"
+    #            f"**End Time:** {end_time}")
 
-    await send_discord_notification(message)
+    # await send_discord_notification(message)
 
 async def handle_pool_finalized_event(event):
     pool_id = event['args']['poolId']
     final_price = event['args']['finalPrice']
     outcome = event['args']['outcome']
 
-    logger.info(f"Event listener: Pool Finalized: Pool ID: {pool_id}, Final Price: {final_price}, Outcome: {outcome}")
+    logger.info(f"Event listener: \
+                Pool Finalized: \
+                Pool ID: {pool_id}, \
+                    Final Price: {final_price}, \
+                        Outcome: {outcome}")
 
-    message = (f"Pool Finalized!\n"
-               f"**Pool ID:** {pool_id}\n"
-               f"**Final Price:** {final_price}\n"
-               f"**Outcome:** {outcome}")
+    # message = (f"Pool Finalized!\n"
+    #            f"**Pool ID:** {pool_id}\n"
+    #            f"**Final Price:** {final_price}\n"
+    #            f"**Outcome:** {outcome}")
 
-    await send_discord_notification(message)
+    # await send_discord_notification(message)
 
 async def handle_event(event):
     event_name = event.event
